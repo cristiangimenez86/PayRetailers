@@ -14,20 +14,8 @@ public class DocumentsController(
     [HttpGet]
     public async Task<IActionResult> GetDocumentsByAccount(string account)
     {
-        try
-        {
-            var docs = await documentService.GetByAccountAsync(account);
-            return Ok(docs);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, nameof(GetDocumentsByAccount));
-            return Problem(statusCode: 500, title: "Internal Server Error");
-        }
+        var docs = await documentService.GetByAccountAsync(account);
+        return Ok(docs);
     }
 
     // POST /accounts/{account}/documents
@@ -35,39 +23,15 @@ public class DocumentsController(
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateDocument(string account, [FromBody] DocumentCreateDto dto)
     {
-        try
-        {
-            var id = await documentService.CreateAsync(account, dto);
-            return CreatedAtAction(nameof(GetDocumentsByAccount), new { account }, new { documentId = id });
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, nameof(CreateDocument));
-            return Problem(statusCode: 500, title: "Internal Server Error");
-        }
+        var id = await documentService.CreateAsync(account, dto);
+        return CreatedAtAction(nameof(GetDocumentsByAccount), new { account }, new { documentId = id });
     }
 
     // PUT /accounts/{account}/documents/{documentId}
     [HttpPut("{documentId:guid}")]
     public async Task<IActionResult> UpdateStatus(string account, Guid documentId, [FromBody] DocumentUpdateDto dto)
     {
-        try
-        {
-            await documentService.UpdateStatusAsync(account, documentId, dto.Status);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, nameof(UpdateStatus));
-            return Problem(statusCode: 500, title: "Internal Server Error");
-        }
+        await documentService.UpdateStatusAsync(account, documentId, dto.Status);
+        return NoContent();
     }
 }

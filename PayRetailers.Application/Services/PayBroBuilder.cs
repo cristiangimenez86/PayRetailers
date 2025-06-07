@@ -1,11 +1,17 @@
-﻿using PayRetailers.Application.Contracts;
+﻿using Microsoft.Extensions.Options;
+using PayRetailers.Application.Contracts;
+using PayRetailers.Application.Options;
 using PayRetailers.Domain.Entities;
 using PayRetailers.Domain.Enums;
 using PayRetailers.Domain.Services;
 
 namespace PayRetailers.Application.Services;
-public class PayBroBuilder(IPayBroHttpClient payBroHttpClient, ICurrencyConverter currencyConverter) : IPayBroBuilder
+public class PayBroBuilder(
+    IPayBroHttpClient payBroHttpClient, 
+    ICurrencyConverter currencyConverter,
+    IOptions<AccountSettings> accountOptions) : IPayBroBuilder
 {
+    private readonly decimal _limitUsd = accountOptions.Value.LimitUsd;
     public async Task<Account> BuildPayBroAccountAsync(string account)
     {
         var payBroAccounts = await payBroHttpClient.GetAccountsAsync(); //TODO: Get all accounts is not a good idea.
@@ -24,7 +30,7 @@ public class PayBroBuilder(IPayBroHttpClient payBroHttpClient, ICurrencyConverte
             PhoneNumber = payBroAccount.PersonalDetails.PhoneNumber,
         };
 
-        var accountEntity = new Account(Provider.PayBro, account, payBroAccount.TotalAmount, payBroAccount.Currency, customerEntity);
+        var accountEntity = new Account(Provider.PayBro, account, payBroAccount.TotalAmount, payBroAccount.Currency, _limitUsd, customerEntity); //TODO: Create a factory
 
         await AddPayBroTransactionsAsync(account, accountEntity);
         return accountEntity;

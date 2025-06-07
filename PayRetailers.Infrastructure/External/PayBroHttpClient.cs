@@ -1,12 +1,18 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PayRetailers.Application.Contracts;
+using PayRetailers.Application.Options;
 using PayRetailers.Domain.Entities;
 
 namespace PayRetailers.Infrastructure.External;
-public class PayBroHttpClient(ILogger<PayBroHttpClient> logger, HttpClient httpClient): IPayBroHttpClient
+public class PayBroHttpClient(
+    ILogger<PayBroHttpClient> logger, 
+    HttpClient httpClient,
+    IOptions<ProviderApiEndpoints> apiOptions) : IPayBroHttpClient
 {
+    private readonly string _baseUrl = apiOptions.Value.PayBroBaseUrl;
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true
@@ -14,7 +20,7 @@ public class PayBroHttpClient(ILogger<PayBroHttpClient> logger, HttpClient httpC
 
     public async Task<IReadOnlyCollection<PayBroAccount>> GetAccountsAsync()
     {
-        const string endpoint = "https://wiremock-api.azurewebsites.net/test-code/paybro/accounts"; //TODO: Get from environment variables
+        var endpoint = $"{_baseUrl}/accounts"; //TODO: Get from environment variables
 
         try
         {
@@ -39,7 +45,7 @@ public class PayBroHttpClient(ILogger<PayBroHttpClient> logger, HttpClient httpC
 
     public async Task<IReadOnlyCollection<PayBroTransaction>> GetTransactionsByAccountAsync(string account)
     {
-        var endpoint = $"https://wiremock-api.azurewebsites.net/test-code/paybro/accounts/{Uri.EscapeDataString(account)}/transactions"; //TODO: Get from environment variables
+        var endpoint = $"{_baseUrl}/accounts/{Uri.EscapeDataString(account)}/transactions"; //TODO: Get from environment variables
 
         try
         {

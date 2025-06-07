@@ -3,7 +3,7 @@ using PayRetailers.Domain.Services;
 
 namespace PayRetailers.Domain.Entities;
 
-public class Account(Provider provider, string customerAccount, decimal balance, string currency, Customer customerDetails)
+public class Account(Provider provider, string customerAccount, decimal balance, string currency, decimal limitUsd, Customer customerDetails)
 {
     //Account Details
     public Guid Id { get; init; } = Guid.NewGuid();
@@ -33,7 +33,6 @@ public class Account(Provider provider, string customerAccount, decimal balance,
     }
 
     //Limit
-    private readonly decimal _limitUsd = 150m; // TODO: Get from configuration or database
-    public decimal LimitDifference => _transactionsOutBalanceUsd - _limitUsd;
-    public bool IsLimitExceeded => _transactionsOutBalanceUsd > _limitUsd;
+    public decimal LimitDifference => _transactionsOutBalanceUsd - limitUsd;
+    public bool IsLimitExceeded => _transactionsOutBalanceUsd > limitUsd;
 }

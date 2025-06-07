@@ -15,40 +15,16 @@ public class AccountsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAccountDetails(string account)
     {
-        try
-        {
-            var dto = await accountService.GetAccountDetailsAsync(account);
-            return Ok(dto);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, nameof(GetAccountDetails));
-            return Problem(statusCode: 500, title: "Internal Server Error");
-        }
+        var dto = await accountService.GetAccountDetailsAsync(account);
+        return Ok(dto);
     }
 
     // GET /accounts/{account}/limits?exceeded=true
     [HttpGet("{account}/limits")]
     public async Task<IActionResult> CheckLimit(string account, [FromQuery] bool exceeded = false)
     {
-        try
-        {
-            var dto = await accountService.CheckLimitAsync(account, exceeded);
-            return Ok(dto);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, nameof(CheckLimit));
-            return Problem(statusCode: 500, title: "Internal Server Error");
-        }
+        var dto = await accountService.CheckLimitAsync(account, exceeded);
+        return Ok(dto);
     }
 
     // GET /accounts/{account}/balances?isFuture=true
@@ -56,19 +32,7 @@ public class AccountsController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFutureBalance(string account, [FromQuery] bool isFuture)
     {
-        try
-        {
-            var dto = await accountService.GetFutureBalanceAsync(account, isFuture);
-            return Ok(dto);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, nameof(GetFutureBalance));
-            return Problem(statusCode: 500, title: "Internal Server Error");
-        }
+        var dto = await accountService.GetFutureBalanceAsync(account, isFuture);
+        return Ok(dto);
     }
 }

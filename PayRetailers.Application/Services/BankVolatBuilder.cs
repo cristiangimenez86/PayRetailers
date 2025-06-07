@@ -1,11 +1,17 @@
-﻿using PayRetailers.Application.Contracts;
+﻿using Microsoft.Extensions.Options;
+using PayRetailers.Application.Contracts;
+using PayRetailers.Application.Options;
 using PayRetailers.Domain.Entities;
 using PayRetailers.Domain.Enums;
 using PayRetailers.Domain.Services;
 
 namespace PayRetailers.Application.Services;
-public class BankVolatBuilder(IBankvolatHttpClient bankvolatHttpClient, ICurrencyConverter currencyConverter) : IBankVolatBuilder
+public class BankVolatBuilder(
+    IBankvolatHttpClient bankvolatHttpClient, 
+    ICurrencyConverter currencyConverter,
+    IOptions<AccountSettings> accountOptions) : IBankVolatBuilder
 {
+    private readonly decimal _limitUsd = accountOptions.Value.LimitUsd;
     public async Task<Account> BuildBankVolatAccountAsync(string account)
     {
         var bankVolatAccounts = await bankvolatHttpClient.GetAccountsAsync();
@@ -30,7 +36,7 @@ public class BankVolatBuilder(IBankvolatHttpClient bankvolatHttpClient, ICurrenc
             PhoneNumber = bankVolatAccountDetails.PhoneNumber,
         };
 
-        var accountEntity = new Account(Provider.Bankvolat, account, bankVolatAccount.TotalAmount, bankVolatAccount.Currency, customerEntity);
+        var accountEntity = new Account(Provider.Bankvolat, account, bankVolatAccount.TotalAmount, bankVolatAccount.Currency, _limitUsd, customerEntity);
 
         await AddBankVolatTransactionsAsync(account, accountEntity, bankVolatAccount.Transactions);
 

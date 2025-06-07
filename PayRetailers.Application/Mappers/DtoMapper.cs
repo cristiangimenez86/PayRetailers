@@ -39,11 +39,11 @@ public static class DtoMapper
         };
     }
 
-    public static LimitCheckDto ToLimitCheckDto(Account account)
+    public static LimitCheckDto ToLimitCheckDto(Account account, decimal limit)
     {
         return new LimitCheckDto
         {
-            CurrentLimit = 150m, // TODO: Get from configuration or database
+            CurrentLimit = limit,
             IsExceeded = account.IsLimitExceeded,
             Difference = Math.Abs(account.LimitDifference),
             Currency = "USD"

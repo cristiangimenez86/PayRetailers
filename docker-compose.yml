@@ -1,6 +1,7 @@
 services:
   payretailers.api:
     image: ${DOCKER_REGISTRY-}payretailersapi
+    container_name: payretailers_api
     build:
       context: .
       dockerfile: PayRetailers.Api/Dockerfile
@@ -11,6 +12,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__TransactionsConnectionString=Host=db;Port=5432;Database=integrations;Username=pr;Password=pr123
+      - ProviderApiEndpoints__PayBroBaseUrl=https://wiremock-api.azurewebsites.net/test-code/paybro
+      - ProviderApiEndpoints__BankVolatBaseUrl=https://wiremock-api.azurewebsites.net/test-code/bankvolat
+      - AccountSettings__LimitUsd=150.0
       - ASPNETCORE_URLS=http://+:80
 
   db:
@@ -26,5 +30,16 @@ services:
     ports:
       - "5432:5432"
 
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: payretailers_portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
 volumes:
   dbdata:
+  portainer_data:

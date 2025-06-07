@@ -1,6 +1,8 @@
-﻿using PayRetailers.Application.Contracts;
+﻿using Microsoft.Extensions.Options;
+using PayRetailers.Application.Contracts;
 using PayRetailers.Application.DTOs;
 using PayRetailers.Application.Mappers;
+using PayRetailers.Application.Options;
 using PayRetailers.Domain.Entities;
 using PayRetailers.Domain.Enums;
 
@@ -9,9 +11,11 @@ namespace PayRetailers.Application.Services;
 public class AccountService(
     ICacheService cacheService,
     IPayBroBuilder payBroBuilder,
-    IBankVolatBuilder bankVolatBuilder)
+    IBankVolatBuilder bankVolatBuilder,
+    IOptions<AccountSettings> accountOptions)
     : IAccountService
 {
+    private readonly decimal _limitUsd = accountOptions.Value.LimitUsd;
     public async Task<AccountDto> GetAccountDetailsAsync(string account)
     {
         var accountEntity = await GetAccountAsync(account);
@@ -21,7 +25,7 @@ public class AccountService(
     public async Task<LimitCheckDto> CheckLimitAsync(string account, bool exceeded)
     {
         var accountEntity = await GetAccountAsync(account);
-        return DtoMapper.ToLimitCheckDto(accountEntity);
+        return DtoMapper.ToLimitCheckDto(accountEntity, _limitUsd);
     }
 
     public Task<IEnumerable<BalanceDto>> GetFutureBalanceAsync(string account, bool isFuture)
@@ -35,7 +39,7 @@ public class AccountService(
                                ?? throw new ApplicationException("Cache is not initialized.");
 
         var accountProvider = accountProviders.FirstOrDefault(x => x.Account == account)
-                              ?? throw new ApplicationException($"No provider found for account: {account}");
+                              ?? throw new KeyNotFoundException($"No provider found for account: {account}");
 
         return accountProvider.Provider switch
         {

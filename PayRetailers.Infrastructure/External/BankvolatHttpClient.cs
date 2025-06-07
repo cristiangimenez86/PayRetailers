@@ -2,12 +2,18 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PayRetailers.Application.Contracts;
+using PayRetailers.Application.Options;
 using PayRetailers.Domain.Entities;
 
 namespace PayRetailers.Infrastructure.External;
-public class BankvolatHttpClient(ILogger<BankvolatHttpClient> logger, HttpClient httpClient) : IBankvolatHttpClient
+public class BankvolatHttpClient(
+    ILogger<BankvolatHttpClient> logger, 
+    HttpClient httpClient,
+    IOptions<ProviderApiEndpoints> apiOptions) : IBankvolatHttpClient
 {
+    private readonly string _baseUrl = apiOptions.Value.BankVolatBaseUrl;
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true,
@@ -16,7 +22,7 @@ public class BankvolatHttpClient(ILogger<BankvolatHttpClient> logger, HttpClient
 
     public async Task<IReadOnlyCollection<BankvolatAccount>> GetAccountsAsync()
     {
-        const string endpoint = "https://wiremock-api.azurewebsites.net/test-code/bankvolat/accounts"; //TODO: Get from environment variables
+        var endpoint = $"{_baseUrl}/accounts"; //TODO: Get from environment variables
 
         try
         {
@@ -41,7 +47,7 @@ public class BankvolatHttpClient(ILogger<BankvolatHttpClient> logger, HttpClient
 
     public async Task<BankvolatPersonalDetails?> GetPersonalDetailsAsync(string account)
     {
-        var endpoint = $"https://wiremock-api.azurewebsites.net/test-code/bankvolat/accounts/{Uri.EscapeDataString(account)}"; //TODO: Get from environment variables
+        var endpoint = $"{_baseUrl}/accounts/{Uri.EscapeDataString(account)}"; //TODO: Get from environment variables
 
         try
         {
@@ -59,7 +65,7 @@ public class BankvolatHttpClient(ILogger<BankvolatHttpClient> logger, HttpClient
 
     public async Task<BankvolatTransaction?> GetTransactionByIdAsync(string account, string transactionId)
     {
-        var endpoint = $"https://wiremock-api.azurewebsites.net/test-code/bankvolat/accounts/{Uri.EscapeDataString(account)}/transactions/{Uri.EscapeDataString(transactionId)}"; //TODO: Get from environment variables
+        var endpoint = $"{_baseUrl}/accounts/{Uri.EscapeDataString(account)}/transactions/{Uri.EscapeDataString(transactionId)}"; //TODO: Get from environment variables
 
         try
         {

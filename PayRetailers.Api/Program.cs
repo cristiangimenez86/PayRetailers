@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using PayRetailers.Api.Middlewares;
 using PayRetailers.Application.Contracts;
+using PayRetailers.Application.Options;
 using PayRetailers.Application.Services;
 using PayRetailers.Domain.Mappers;
 using PayRetailers.Domain.Repositories;
@@ -11,12 +13,16 @@ using PayRetailers.Infrastructure.Repositories;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHealthChecks();
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
+
+builder.Services.Configure<AccountSettings>(builder.Configuration.GetSection("AccountSettings"));
+builder.Services.Configure<ProviderApiEndpoints>(builder.Configuration.GetSection("ProviderApiEndpoints"));
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -28,27 +34,27 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Services
+//Services
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IPayBroBuilder, PayBroBuilder>();
 builder.Services.AddScoped<IBankVolatBuilder, BankVolatBuilder>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 
-// Repositories
+//Repositories
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 
-// DbContext
+//DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("TransactionsConnectionString")));
 
-// Converters
+//Converters
 builder.Services.AddScoped<ICurrencyConverter, CurrencyConverter>();
 
-// HttpClients
+//HttpClients
 builder.Services.AddHttpClient<IBankvolatHttpClient, BankvolatHttpClient>();
 builder.Services.AddHttpClient<IPayBroHttpClient, PayBroHttpClient>();
 
-// Cache registration
+//Cache registration
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddMemoryCache();
@@ -66,6 +72,12 @@ else
 
 var app = builder.Build();
 
+//Health Checks
+app.MapHealthChecks("/health");
+
+//Error Handling Middleware
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 //Swagger
 if (app.Environment.IsDevelopment())
 {
@@ -73,18 +85,46 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Cache and Database initialization
+//Cache initialization
 using (var scope = app.Services.CreateScope())
 {
     var cacheService = scope.ServiceProvider.GetRequiredService<ICacheService>();
     await cacheService.InitializeAsync();
-
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated();
 }
+
+//Database initialization
+await InitializeDatabase(app);
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+return;
+
+async Task InitializeDatabase(WebApplication webApplication)
+{
+    using var scope = webApplication.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    var canConnect = false;
+
+    try
+    {
+        canConnect = await context.Database.CanConnectAsync();
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "Database not available at startup.");
+    }
+
+    if (canConnect && webApplication.Environment.IsDevelopment())
+    {
+        context.Database.EnsureCreated();
+    }
+    else
+    {
+        logger.LogWarning("Skipping database initialization.");
+    }
+}
