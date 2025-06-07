@@ -22,7 +22,7 @@ public class BankvolatHttpClient(
 
     public async Task<IReadOnlyCollection<BankvolatAccount>> GetAccountsAsync()
     {
-        var endpoint = $"{_baseUrl}/accounts"; //TODO: Get from environment variables
+        var endpoint = $"{_baseUrl}/accounts";
 
         try
         {
@@ -47,7 +47,7 @@ public class BankvolatHttpClient(
 
     public async Task<BankvolatPersonalDetails?> GetPersonalDetailsAsync(string account)
     {
-        var endpoint = $"{_baseUrl}/accounts/{Uri.EscapeDataString(account)}"; //TODO: Get from environment variables
+        var endpoint = $"{_baseUrl}/accounts/{Uri.EscapeDataString(account)}";
 
         try
         {
@@ -65,7 +65,7 @@ public class BankvolatHttpClient(
 
     public async Task<BankvolatTransaction?> GetTransactionByIdAsync(string account, string transactionId)
     {
-        var endpoint = $"{_baseUrl}/accounts/{Uri.EscapeDataString(account)}/transactions/{Uri.EscapeDataString(transactionId)}"; //TODO: Get from environment variables
+        var endpoint = $"{_baseUrl}/accounts/{Uri.EscapeDataString(account)}/transactions/{Uri.EscapeDataString(transactionId)}";
 
         try
         {

@@ -48,4 +48,18 @@ public class DocumentService(IDocumentRepository documentRepository) : IDocument
 
         await documentRepository.SaveAsync();
     }
+
+    public async Task DeleteAsync(string account, Guid documentId)
+    {
+        var doc = await documentRepository.GetAsync(documentId)
+                  ?? throw new KeyNotFoundException("Document not found");
+
+        if (doc.Account != account)
+        {
+            throw new Exception("Document does not belong to this account");
+        }
+
+        await documentRepository.DeleteAsync(doc);
+        await documentRepository.SaveAsync();
+    }
 }

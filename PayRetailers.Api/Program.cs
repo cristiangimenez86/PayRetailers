@@ -32,7 +32,14 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new TransactionTypeConverter());
     });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "PayRetailers API",
+        Version = "v1"
+    });
+});
 
 //Services
 builder.Services.AddScoped<IAccountService, AccountService>();

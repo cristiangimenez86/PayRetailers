@@ -25,6 +25,12 @@ public class DocumentRepository(ApplicationDbContext context) : IDocumentReposit
         return document.Id;
     }
 
+    public Task DeleteAsync(Document document)
+    {
+        context.Documents.Remove(document);
+        return Task.CompletedTask;
+    }
+
     public async Task SaveAsync()
     {
         await context.SaveChangesAsync();

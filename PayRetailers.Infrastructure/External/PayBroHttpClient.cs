@@ -20,7 +20,7 @@ public class PayBroHttpClient(
 
     public async Task<IReadOnlyCollection<PayBroAccount>> GetAccountsAsync()
     {
-        var endpoint = $"{_baseUrl}/accounts"; //TODO: Get from environment variables
+        var endpoint = $"{_baseUrl}/accounts";
 
         try
         {
@@ -45,7 +45,7 @@ public class PayBroHttpClient(
 
     public async Task<IReadOnlyCollection<PayBroTransaction>> GetTransactionsByAccountAsync(string account)
     {
-        var endpoint = $"{_baseUrl}/accounts/{Uri.EscapeDataString(account)}/transactions"; //TODO: Get from environment variables
+        var endpoint = $"{_baseUrl}/accounts/{Uri.EscapeDataString(account)}/transactions";
 
         try
         {
