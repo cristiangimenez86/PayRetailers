@@ -1,0 +1,30 @@
+services:
+  payretailers.api:
+    image: ${DOCKER_REGISTRY-}payretailersapi
+    build:
+      context: .
+      dockerfile: PayRetailers.Api/Dockerfile
+    ports:
+      - "8080:80" #http://localhost:8080/swagger/index.html
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__TransactionsConnectionString=Host=db;Port=5432;Database=integrations;Username=pr;Password=pr123
+      - ASPNETCORE_URLS=http://+:80
+
+  db:
+    image: postgres:latest
+    container_name: payretailers_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: pr
+      POSTGRES_PASSWORD: pr123
+      POSTGRES_DB: integrations
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  dbdata:
