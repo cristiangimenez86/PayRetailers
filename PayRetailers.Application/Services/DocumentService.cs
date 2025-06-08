@@ -36,7 +36,7 @@ public class DocumentService(IDocumentRepository documentRepository) : IDocument
 
     public async Task UpdateStatusAsync(string account, Guid documentId, DocumentStatus newStatus)
     {
-        var doc = await documentRepository.GetAsync(documentId)
+        var doc = await documentRepository.GetByIdAsync(documentId)
                   ?? throw new KeyNotFoundException("Document not found");
 
         if (doc.Account != account)
@@ -45,13 +45,12 @@ public class DocumentService(IDocumentRepository documentRepository) : IDocument
         }
 
         doc.SetStatus(newStatus);
-
-        await documentRepository.SaveAsync();
+        await documentRepository.UpdateAsync(doc);
     }
 
     public async Task DeleteAsync(string account, Guid documentId)
     {
-        var doc = await documentRepository.GetAsync(documentId)
+        var doc = await documentRepository.GetByIdAsync(documentId)
                   ?? throw new KeyNotFoundException("Document not found");
 
         if (doc.Account != account)
@@ -60,6 +59,5 @@ public class DocumentService(IDocumentRepository documentRepository) : IDocument
         }
 
         await documentRepository.DeleteAsync(doc);
-        await documentRepository.SaveAsync();
     }
 }

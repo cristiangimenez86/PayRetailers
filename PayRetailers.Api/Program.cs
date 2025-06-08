@@ -8,9 +8,9 @@ using PayRetailers.Domain.Repositories;
 using PayRetailers.Domain.Services;
 using PayRetailers.Infrastructure.Cache;
 using PayRetailers.Infrastructure.DbContexts;
-using PayRetailers.Infrastructure.External;
 using PayRetailers.Infrastructure.Repositories;
 using System.Text.Json.Serialization;
+using PayRetailers.Infrastructure.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHealthChecks();
@@ -69,7 +69,7 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
-    //Redis
+    //Redis (Not implemented yet)
     builder.Services.AddStackExchangeRedisCache(options =>
     {
         options.Configuration = builder.Configuration.GetConnectionString("Redis");
@@ -115,23 +115,17 @@ async Task InitializeDatabase(WebApplication webApplication)
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    var canConnect = false;
-
     try
     {
-        canConnect = await context.Database.CanConnectAsync();
+        await context.Database.CanConnectAsync();
+
+        if (webApplication.Environment.IsDevelopment())
+            context.Database.EnsureCreated();
+        else
+            logger.LogInformation("Skipping database initialization.");
     }
     catch (Exception ex)
     {
         logger.LogWarning(ex, "Database not available at startup.");
-    }
-
-    if (canConnect && webApplication.Environment.IsDevelopment())
-    {
-        context.Database.EnsureCreated();
-    }
-    else
-    {
-        logger.LogWarning("Skipping database initialization.");
     }
 }

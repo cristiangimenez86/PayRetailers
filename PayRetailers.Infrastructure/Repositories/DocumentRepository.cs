@@ -13,7 +13,7 @@ public class DocumentRepository(ApplicationDbContext context) : IDocumentReposit
             .ToListAsync();
     }
 
-    public async Task<Document?> GetAsync(Guid id)
+    public async Task<Document?> GetByIdAsync(Guid id)
     {
         return await context.Documents.FindAsync(id);
     }
@@ -25,20 +25,20 @@ public class DocumentRepository(ApplicationDbContext context) : IDocumentReposit
         return document.Id;
     }
 
-    public Task DeleteAsync(Document document)
-    {
-        context.Documents.Remove(document);
-        return Task.CompletedTask;
-    }
-
-    public async Task SaveAsync()
-    {
-        await context.SaveChangesAsync();
-    }
-
     public async Task UpdateAsync(Document document)
     {
         context.Documents.Update(document);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(Document document)
+    {
+        context.Documents.Remove(document);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task SaveChangesAsync()
+    {
         await context.SaveChangesAsync();
     }
 }

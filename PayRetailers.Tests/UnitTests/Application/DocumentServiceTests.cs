@@ -81,7 +81,7 @@ public class DocumentServiceTests
         };
         doc.SetStatus(DocumentStatus.New);
 
-        _repoMock.Setup(r => r.GetAsync(docId)).ReturnsAsync(doc);
+        _repoMock.Setup(r => r.GetByIdAsync(docId)).ReturnsAsync(doc);
 
         var service = CreateService();
 
@@ -90,13 +90,13 @@ public class DocumentServiceTests
 
         // Assert
         doc.Status.Should().Be(DocumentStatus.Signed);
-        _repoMock.Verify(r => r.SaveAsync(), Times.Once);
+        _repoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
     public async Task UpdateStatusAsync_ShouldThrow_WhenDocumentNotFound()
     {
-        _repoMock.Setup(r => r.GetAsync(It.IsAny<Guid>())).ReturnsAsync((Document?)null);
+        _repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Document?)null);
         var service = CreateService();
 
         var act = async () => await service.UpdateStatusAsync("ACC1", Guid.NewGuid(), DocumentStatus.Signed);
@@ -115,7 +115,7 @@ public class DocumentServiceTests
             Type = DocumentType.Contract
         };
 
-        _repoMock.Setup(r => r.GetAsync(docId)).ReturnsAsync(doc);
+        _repoMock.Setup(r => r.GetByIdAsync(docId)).ReturnsAsync(doc);
 
         var service = CreateService();
 

@@ -12,7 +12,7 @@ using PayRetailers.Domain.Repositories;
 using PayRetailers.Domain.Services;
 using PayRetailers.Infrastructure.Cache;
 using PayRetailers.Infrastructure.DbContexts;
-using PayRetailers.Infrastructure.External;
+using PayRetailers.Infrastructure.Providers;
 using PayRetailers.Infrastructure.Repositories;
 
 namespace PayRetailers.Tests.IntegrationTests;

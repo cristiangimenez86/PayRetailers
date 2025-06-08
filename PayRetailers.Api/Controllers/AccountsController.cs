@@ -21,7 +21,7 @@ public class AccountsController(
 
     // GET /accounts/{account}/limits?exceeded=true
     [HttpGet("{account}/limits")]
-    public async Task<IActionResult> CheckLimit(string account, [FromQuery] bool exceeded = false)
+    public async Task<IActionResult> CheckLimit(string account, [FromQuery] bool exceeded = true)
     {
         var dto = await accountService.CheckLimitAsync(account, exceeded);
         return Ok(dto);
@@ -30,7 +30,7 @@ public class AccountsController(
     // GET /accounts/{account}/balances?isFuture=true
     [HttpGet("{account}/balances")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetFutureBalance(string account, [FromQuery] bool isFuture)
+    public async Task<IActionResult> GetFutureBalance(string account, [FromQuery] bool isFuture = true)
     {
         var dto = await accountService.GetFutureBalanceAsync(account, isFuture);
         return Ok(dto);

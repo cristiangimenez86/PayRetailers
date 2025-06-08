@@ -4,8 +4,9 @@ namespace PayRetailers.Domain.Repositories;
 public interface IDocumentRepository
 {
     Task<IEnumerable<Document>> GetByAccountAsync(string account);
-    Task<Document?> GetAsync(Guid id);
+    Task<Document?> GetByIdAsync(Guid id);
     Task<Guid> AddAsync(Document document);
+    Task UpdateAsync(Document document);
     Task DeleteAsync(Document document);
-    Task SaveAsync();
+    Task SaveChangesAsync();
 }

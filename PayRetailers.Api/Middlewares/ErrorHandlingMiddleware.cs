@@ -38,17 +38,13 @@ public class ErrorHandlingMiddleware(
 
             context.Response.StatusCode = statusCode;
 
-            var response = new Dictionary<string, object>
+            var errorResponse = new ErrorResponse
             {
-                ["message"] = message
+                Message = message,
+                Details = env.IsDevelopment() ? ex.ToString() : null
             };
 
-            if (env.IsDevelopment())
-            {
-                response["details"] = ex.ToString();
-            }
-
-            var json = JsonSerializer.Serialize(response);
+            var json = JsonSerializer.Serialize(errorResponse);
             await context.Response.WriteAsync(json);
         }
     }

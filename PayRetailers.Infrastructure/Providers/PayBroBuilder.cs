@@ -5,7 +5,7 @@ using PayRetailers.Domain.Entities;
 using PayRetailers.Domain.Enums;
 using PayRetailers.Domain.Services;
 
-namespace PayRetailers.Application.Services;
+namespace PayRetailers.Infrastructure.Providers;
 public class PayBroBuilder(
     IPayBroHttpClient payBroHttpClient, 
     ICurrencyConverter currencyConverter,
@@ -30,7 +30,7 @@ public class PayBroBuilder(
             PhoneNumber = payBroAccount.PersonalDetails.PhoneNumber,
         };
 
-        var accountEntity = new Account(Provider.PayBro, account, payBroAccount.TotalAmount, payBroAccount.Currency, _limitUsd, customerEntity); //TODO: Create a factory
+        var accountEntity = new Account(Provider.PayBro, account, payBroAccount.TotalAmount, payBroAccount.Currency, _limitUsd, customerEntity);
 
         await AddPayBroTransactionsAsync(account, accountEntity);
         return accountEntity;

@@ -5,7 +5,7 @@ using PayRetailers.Domain.Entities;
 using PayRetailers.Domain.Enums;
 using PayRetailers.Domain.Services;
 
-namespace PayRetailers.Application.Services;
+namespace PayRetailers.Infrastructure.Providers;
 public class BankVolatBuilder(
     IBankvolatHttpClient bankvolatHttpClient, 
     ICurrencyConverter currencyConverter,
@@ -14,7 +14,7 @@ public class BankVolatBuilder(
     private readonly decimal _limitUsd = accountOptions.Value.LimitUsd;
     public async Task<Account> BuildBankVolatAccountAsync(string account)
     {
-        var bankVolatAccounts = await bankvolatHttpClient.GetAccountsAsync();
+        var bankVolatAccounts = await bankvolatHttpClient.GetAccountsAsync(); //TODO: Get all accounts is not a good idea.
         var bankVolatAccount = bankVolatAccounts.FirstOrDefault(a => a.Account.Equals(account));
         if (bankVolatAccount is null)
         {

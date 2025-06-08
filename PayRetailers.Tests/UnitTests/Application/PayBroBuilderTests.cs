@@ -7,6 +7,7 @@ using PayRetailers.Application.Services;
 using PayRetailers.Domain.Entities;
 using PayRetailers.Domain.Enums;
 using PayRetailers.Domain.Services;
+using PayRetailers.Infrastructure.Providers;
 
 namespace PayRetailers.Tests.UnitTests.Application;
 

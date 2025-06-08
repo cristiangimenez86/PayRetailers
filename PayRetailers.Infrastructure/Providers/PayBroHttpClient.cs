@@ -6,7 +6,7 @@ using PayRetailers.Application.Contracts;
 using PayRetailers.Application.Options;
 using PayRetailers.Domain.Entities;
 
-namespace PayRetailers.Infrastructure.External;
+namespace PayRetailers.Infrastructure.Providers;
 public class PayBroHttpClient(
     ILogger<PayBroHttpClient> logger, 
     HttpClient httpClient,
