@@ -90,7 +90,7 @@ public class DocumentServiceTests
 
         // Assert
         doc.Status.Should().Be(DocumentStatus.Signed);
-        _repoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _repoMock.Verify(r => r.UpdateAsync(doc), Times.Once);
     }
 
     [Fact]
